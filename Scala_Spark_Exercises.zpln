@@ -1,0 +1,997 @@
+﻿{
+  "paragraphs": [
+    {
+      "title": "Write a structured query that splits a column by using delimiters from another column (https://jaceklaskowski.github.io/spark-workshop/exercises/sql/split-function-with-variable-delimiter-per-row.html)",
+      "text": "val dept = Seq(\n  (\"50000.0#0#0#\", \"#\"),\n  (\"0@1000.0@\", \"@\"),\n  (\"1$\", \"$\"),\n  (\"1000.00^Test_string\", \"^\")).toDF(\"VALUES\", \"Delimiter\")",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:27+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34mdept\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [VALUES: string, Delimiter: string]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222830_1570762157",
+      "id": "20210524-080022_708211533",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:27+0000",
+      "dateFinished": "2021-05-24T08:12:28+0000",
+      "status": "FINISHED",
+      "focus": true,
+      "$$hashKey": "object:6921"
+    },
+    {
+      "text": "dept.show",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:28+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-------------------+---------+\n|             VALUES|Delimiter|\n+-------------------+---------+\n|       50000.0#0#0#|        #|\n|          0@1000.0@|        @|\n|                 1$|        $|\n|1000.00^Test_string|        ^|\n+-------------------+---------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222830_454995636",
+      "id": "20210524-080022_783969790",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:28+0000",
+      "dateFinished": "2021-05-24T08:12:28+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6922"
+    },
+    {
+      "text": "val split_udf = udf((v: String, d: String) => v.split('\\\\' + d))\ndept.withColumn(\"split_values\", split_udf($\"VALUES\", $\"Delimiter\")).show(truncate = false)",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:29+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-------------------+---------+----------------------+\n|VALUES             |Delimiter|split_values          |\n+-------------------+---------+----------------------+\n|50000.0#0#0#       |#        |[50000.0, 0, 0]       |\n|0@1000.0@          |@        |[0, 1000.0]           |\n|1$                 |$        |[1]                   |\n|1000.00^Test_string|^        |[1000.00, Test_string]|\n+-------------------+---------+----------------------+\n\n\u001b[1m\u001b[34msplit_udf\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.expressions.UserDefinedFunction\u001b[0m = UserDefinedFunction(<function2>,ArrayType(StringType,true),Some(List(StringType, StringType)))\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222830_2085338729",
+      "id": "20210524-080022_1816326036",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:29+0000",
+      "dateFinished": "2021-05-24T08:12:29+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6923"
+    },
+    {
+      "title": "Write a structured query that selects the most important rows per assigned priority (https://jaceklaskowski.github.io/spark-workshop/exercises/sql/selecting-the-most-important-rows-per-assigned-priority.html)",
+      "text": "val input = Seq(\n  (1, \"MV1\"),\n  (1, \"MV2\"),\n  (2, \"VPV\"),\n  (2, \"Others\")).toDF(\"id\", \"value\")\ninput.show",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:29+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---+------+\n| id| value|\n+---+------+\n|  1|   MV1|\n|  1|   MV2|\n|  2|   VPV|\n|  2|Others|\n+---+------+\n\n\u001b[1m\u001b[34minput\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [id: int, value: string]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_720331018",
+      "id": "20210524-080022_1068631864",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:29+0000",
+      "dateFinished": "2021-05-24T08:12:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6924"
+    },
+    {
+      "text": "val priorities = Seq(\"MV1\", \"MV2\", \"VPV\", \"Others\").zipWithIndex.toDF(\"name\", \"prvalue\")",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:30+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34mpriorities\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [name: string, prvalue: int]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_1075127694",
+      "id": "20210524-080022_638035864",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:30+0000",
+      "dateFinished": "2021-05-24T08:12:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6925"
+    },
+    {
+      "text": "val result = input\n    .join(priorities)\n    .where($\"name\" === $\"value\")\n    .groupBy(\"id\")\n    .agg(min(\"prvalue\"))",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:30+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34mresult\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [id: int, min(prvalue): int]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_1984605927",
+      "id": "20210524-080022_1529871163",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:30+0000",
+      "dateFinished": "2021-05-24T08:12:31+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6926"
+    },
+    {
+      "text": "result\n    .join(priorities)\n    .where($\"min(prvalue)\" === $\"prvalue\")\n    .select(\"id\", \"name\")\n    .show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:31+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---+----+\n| id|name|\n+---+----+\n|  1| MV1|\n|  2| VPV|\n+---+----+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=31",
+              "$$hashKey": "object:9183"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=32",
+              "$$hashKey": "object:9184"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=33",
+              "$$hashKey": "object:9185"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=34",
+              "$$hashKey": "object:9186"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=35",
+              "$$hashKey": "object:9187"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=36",
+              "$$hashKey": "object:9188"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=37",
+              "$$hashKey": "object:9189"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_589342683",
+      "id": "20210524-080022_543850885",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:31+0000",
+      "dateFinished": "2021-05-24T08:12:32+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6927"
+    },
+    {
+      "title": "Adding count to the source DataFrame (https://jaceklaskowski.github.io/spark-workshop/exercises/sql/adding-count-to-the-source-dataframe.html)",
+      "text": "val input = Seq(\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604900\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604899\", \"10.0.0.2.54880\", \"10.0.0.3.5001\",  2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2),\n  (\"05:49:56.604908\", \"10.0.0.3.5001\",  \"10.0.0.2.54880\", 2)).toDF(\"column0\", \"column1\", \"column2\", \"label\")",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:32+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34minput\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [column0: string, column1: string ... 2 more fields]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_214764922",
+      "id": "20210524-080022_265210231",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:32+0000",
+      "dateFinished": "2021-05-24T08:12:32+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6928"
+    },
+    {
+      "text": "val tempdf = input\n    .withColumn(\"digit\", lit(1))\n    .groupBy(\"column2\")\n    .agg(sum(\"digit\"))\n    .withColumnRenamed(\"column2\", \"alt_column2\")\ntempdf.show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:33+0000",
+      "progress": 65,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+--------------+----------+\n|   alt_column2|sum(digit)|\n+--------------+----------+\n| 10.0.0.3.5001|        13|\n|10.0.0.2.54880|         7|\n+--------------+----------+\n\n\u001b[1m\u001b[34mtempdf\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [alt_column2: string, sum(digit): bigint]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=38",
+              "$$hashKey": "object:9368"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=39",
+              "$$hashKey": "object:9369"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=40",
+              "$$hashKey": "object:9370"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=41",
+              "$$hashKey": "object:9371"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=42",
+              "$$hashKey": "object:9372"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222831_111691002",
+      "id": "20210524-080022_342791281",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:33+0000",
+      "dateFinished": "2021-05-24T08:12:34+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6929"
+    },
+    {
+      "text": "input\n    .join(tempdf)\n    .where($\"column2\" ===$\"alt_column2\")\n    .select(\"column0\", \"column1\", \"column2\", \"label\", \"sum(digit)\")\n    .withColumnRenamed(\"sum(digit)\", \"count\")\n    .show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:34+0000",
+      "progress": 60,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---------------+--------------+--------------+-----+-----+\n|        column0|       column1|       column2|label|count|\n+---------------+--------------+--------------+-----+-----+\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604900|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604899|10.0.0.2.54880| 10.0.0.3.5001|    2|   13|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n|05:49:56.604908| 10.0.0.3.5001|10.0.0.2.54880|    2|    7|\n+---------------+--------------+--------------+-----+-----+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=43",
+              "$$hashKey": "object:9492"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=44",
+              "$$hashKey": "object:9493"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=45",
+              "$$hashKey": "object:9494"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=46",
+              "$$hashKey": "object:9495"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222832_1745578166",
+      "id": "20210524-080022_817648612",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:34+0000",
+      "dateFinished": "2021-05-24T08:12:35+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6930"
+    },
+    {
+      "title": "Limiting collect_set Standard Function (https://jaceklaskowski.github.io/spark-workshop/exercises/sql/limiting-collect_set-standard-function.html)",
+      "text": "val input = spark.range(50).withColumn(\"key\", $\"id\" % 5)",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:35+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34minput\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [id: bigint, key: bigint]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222832_136370413",
+      "id": "20210524-080022_1152289503",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:35+0000",
+      "dateFinished": "2021-05-24T08:12:35+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6931"
+    },
+    {
+      "text": "input.show",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:35+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---+---+\n| id|key|\n+---+---+\n|  0|  0|\n|  1|  1|\n|  2|  2|\n|  3|  3|\n|  4|  4|\n|  5|  0|\n|  6|  1|\n|  7|  2|\n|  8|  3|\n|  9|  4|\n| 10|  0|\n| 11|  1|\n| 12|  2|\n| 13|  3|\n| 14|  4|\n| 15|  0|\n| 16|  1|\n| 17|  2|\n| 18|  3|\n| 19|  4|\n+---+---+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=47",
+              "$$hashKey": "object:9587"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=48",
+              "$$hashKey": "object:9588"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222832_2024806716",
+      "id": "20210524-080022_1028810316",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:35+0000",
+      "dateFinished": "2021-05-24T08:12:36+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6932"
+    },
+    {
+      "text": "import org.apache.spark.sql.functions.slice",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:36+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.sql.functions.slice\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222832_1294672875",
+      "id": "20210524-080022_1568645259",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:36+0000",
+      "dateFinished": "2021-05-24T08:12:36+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6933"
+    },
+    {
+      "text": "input\n    .groupBy(\"key\")\n    .agg(collect_set(input(\"id\")))\n    .withColumn(\"only_first_three\", slice(col(\"collect_set(id)\"), 1, 3))\n    .show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:36+0000",
+      "progress": 25,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---+--------------------+----------------+\n|key|     collect_set(id)|only_first_three|\n+---+--------------------+----------------+\n|  0|[0, 15, 30, 45, 5...|     [0, 15, 30]|\n|  1|[1, 16, 31, 46, 6...|     [1, 16, 31]|\n|  3|[33, 48, 13, 38, ...|    [33, 48, 13]|\n|  2|[12, 27, 37, 2, 1...|    [12, 27, 37]|\n|  4|[9, 19, 34, 49, 2...|     [9, 19, 34]|\n+---+--------------------+----------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=49",
+              "$$hashKey": "object:9749"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=50",
+              "$$hashKey": "object:9750"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=51",
+              "$$hashKey": "object:9751"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=52",
+              "$$hashKey": "object:9752"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=53",
+              "$$hashKey": "object:9753"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222833_1415309999",
+      "id": "20210524-080022_252640179",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:36+0000",
+      "dateFinished": "2021-05-24T08:12:37+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6934"
+    },
+    {
+      "title": "Structs for column names and values (https://jaceklaskowski.github.io/spark-workshop/exercises/sql/structs-for-column-names-and-values.html)",
+      "text": "import spark.implicits._\n\ncase class MovieRatings(movieName: String, rating: Double)\ncase class MovieCritics(name: String, movieRatings: Seq[MovieRatings])\nval movies_critics = Seq(\n  MovieCritics(\"Manuel\", Seq(MovieRatings(\"Logan\", 1.5), MovieRatings(\"Zoolander\", 3), MovieRatings(\"John Wick\", 2.5))),\n  MovieCritics(\"John\", Seq(MovieRatings(\"Logan\", 2), MovieRatings(\"Zoolander\", 3.5), MovieRatings(\"John Wick\", 3))))\nval ratings = movies_critics.toDF",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:37+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import spark.implicits._\ndefined class MovieRatings\ndefined class MovieCritics\n\u001b[1m\u001b[34mmovies_critics\u001b[0m: \u001b[1m\u001b[32mSeq[MovieCritics]\u001b[0m = List(MovieCritics(Manuel,List(MovieRatings(Logan,1.5), MovieRatings(Zoolander,3.0), MovieRatings(John Wick,2.5))), MovieCritics(John,List(MovieRatings(Logan,2.0), MovieRatings(Zoolander,3.5), MovieRatings(John Wick,3.0))))\n\u001b[1m\u001b[34mratings\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [name: string, movieRatings: array<struct<movieName:string,rating:double>>]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222833_1360249040",
+      "id": "20210524-080022_1061581055",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:37+0000",
+      "dateFinished": "2021-05-24T08:12:38+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6935"
+    },
+    {
+      "text": "ratings.show(truncate = false)",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:38+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+------+--------------------------------------------------+\n|name  |movieRatings                                      |\n+------+--------------------------------------------------+\n|Manuel|[[Logan, 1.5], [Zoolander, 3.0], [John Wick, 2.5]]|\n|John  |[[Logan, 2.0], [Zoolander, 3.5], [John Wick, 3.0]]|\n+------+--------------------------------------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222833_112363514",
+      "id": "20210524-080022_285737309",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:38+0000",
+      "dateFinished": "2021-05-24T08:12:38+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6936"
+    },
+    {
+      "text": "val niceDF = ratings\n    .select($\"name\", explode($\"movieRatings\"))\n    .withColumn(\"movie\", col(\"col\")(\"movieName\"))\n    .withColumn(\"rating\", col(\"col\")(\"rating\"))\n    .drop(\"col\")\nniceDF.show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:38+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+------+---------+------+\n|  name|    movie|rating|\n+------+---------+------+\n|Manuel|    Logan|   1.5|\n|Manuel|Zoolander|   3.0|\n|Manuel|John Wick|   2.5|\n|  John|    Logan|   2.0|\n|  John|Zoolander|   3.5|\n|  John|John Wick|   3.0|\n+------+---------+------+\n\n\u001b[1m\u001b[34mniceDF\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = [name: string, movie: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=54",
+              "$$hashKey": "object:9874"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=55",
+              "$$hashKey": "object:9875"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222833_377799490",
+      "id": "20210524-080022_835948559",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:38+0000",
+      "dateFinished": "2021-05-24T08:12:39+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6937"
+    },
+    {
+      "text": "val result = niceDF\n    .groupBy(\"name\")\n    .pivot(\"movie\")\n    .sum(\"rating\")\n    .show()",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-24T08:12:39+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "colWidth": 12,
+        "editorHide": false,
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+------+---------+-----+---------+\n|  name|John Wick|Logan|Zoolander|\n+------+---------+-----+---------+\n|  John|      3.0|  2.0|      3.5|\n|Manuel|      2.5|  1.5|      3.0|\n+------+---------+-----+---------+\n\n\u001b[1m\u001b[34mresult\u001b[0m: \u001b[1m\u001b[32mUnit\u001b[0m = ()\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=56",
+              "$$hashKey": "object:10052"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=57",
+              "$$hashKey": "object:10053"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=58",
+              "$$hashKey": "object:10054"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=59",
+              "$$hashKey": "object:10055"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=60",
+              "$$hashKey": "object:10056"
+            },
+            {
+              "jobUrl": "http://bb30429b0053:4040/jobs/job?id=61",
+              "$$hashKey": "object:10057"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1621843222834_784677824",
+      "id": "20210524-080022_1232611045",
+      "dateCreated": "2021-05-24T08:00:22+0000",
+      "dateStarted": "2021-05-24T08:12:39+0000",
+      "dateFinished": "2021-05-24T08:12:41+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:6938"
+    }
+  ],
+  "name": "Scala_Spark_Exercises",
+  "id": "2G5N9MVSD",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.9.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default",
+    "personalizedMode": "false"
+  },
+  "info": {},
+  "path": "/Scala_Spark_Exercises"
+}
